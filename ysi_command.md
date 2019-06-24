@@ -1,10 +1,11 @@
 create tf record
 
 ```
-sudo docker run --name=create_tfrecord --runtime=nvidia -d -v /collab/ysi/work/pretrain_xlnet/xlnet:/tmp/file \
+sudo docker run --name=create_tfrecord \
+	--runtime=nvidia -d -v /collab/ysi/work/pretrain_xlnet/xlnet:/tmp/file \
 	-e NVIDIA_VISIBLE_DEVICES=1 \
-        --user $(id -u):$(id -g) -w /tmp/file ysi/customerized-xlnet:0.2 python data_utils.py \
-        --use_tpu=False \
+	--user $(id -u):$(id -g) -w /tmp/file ysi/customerized-xlnet:0.2 python data_utils.py \
+	--use_tpu=False \
 	--bsz_per_host=32 \
 	--num_core_per_host=1 \
 	--uncased = False \
