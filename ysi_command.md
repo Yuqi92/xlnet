@@ -111,3 +111,41 @@ python run_classifier.py \
   --learning_rate=5e-5
   --eval_all_ckpt=True
 ```
+
+
+## Run NER on conll2003 data
+
+```
+python prepro/prepro_conll.py \
+--data_format json \
+--input_file ./data/ner/conll2003/raw/dev.txt \
+--output_file ./data/ner/conll2003/dev-conll2003/dev-conll2003.json
+
+
+sudo docker run --name=xlnet_ner \
+  --runtime=nvidia -d -v /collab/ysi/work/xlnet_extension_tf:/tmp/file \
+  -e NVIDIA_VISIBLE_DEVICES=1 \
+  --user $(id -u):$(id -g) -w /tmp/file ysi/xlnet_ner_py3:0.1  python run_ner.py \
+    --spiece_model_file=./xlnet_ckpt_260k/spiece.model \
+    --model_config_path=./xlnet_ckpt_260k/xlnet_config.json \
+    --init_checkpoint=./xlnet_ckpt_260k/model.ckpt \
+    --task_name=conll2003 \
+    --data_dir=data/ner/conll2003 \
+    --output_dir=output/ner/conll2003/data \
+    --model_dir=output/ner/conll2003/checkpoint \
+    --export_dir=output/ner/conll2003/export \
+    --max_seq_length=128 \
+    --train_batch_size=16 \
+    --eval_batch_size=16 \
+    --predict_batch_size=16 \
+    --num_hosts=1 \
+    --num_core_per_host=1 \
+    --learning_rate=2e-5 \
+    --train_steps=4000 \
+    --warmup_steps=100 \
+    --save_steps=500 \
+    --do_train=true \
+    --do_eval=true \
+    --do_predict=true \
+    --do_export=true
+```
