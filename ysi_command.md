@@ -25,18 +25,18 @@ sudo docker run --name=create_tfrecord \
 ```
 
 ## Pretrain 
-
+Use the `TPU` version rather than `GPU` version
 ```
-sudo docker run --name=pretrain_xlnet_mimic \
-  --runtime=nvidia -d -v /collab/ysi/work/pretrain_xlnet/xlnet:/tmp/file \
-  -e NVIDIA_VISIBLE_DEVICES=2 \
-  --user $(id -u):$(id -g) -w /tmp/file ysi/customized-xlnet:0.1 python train_gpu.py \
+sudo docker run --name=pretrain_xlnet_mimic_tpu \
+  --runtime=nvidia -d -v /collab/ysi/work/xlnet_ysi/pretrain_xlnet/xlnet:/tmp/file \
+  -e NVIDIA_VISIBLE_DEVICES=0 \
+  --user $(id -u):$(id -g) -w /tmp/file ysi/customized-xlnet:0.1 python train.py \
   --record_info_dir=./tf_record_mimic_seqlen128/tfrecords \
-  --model_dir= ./mimic_xlnet_cased_large \
+  --model_dir=./models \
   --init_checkpoint=./xlnet_cased_L-24_H-1024_A-16/xlnet_model.ckpt \
   --train_batch_size=16 \
   --train_steps=500000 \
-  --save_steps=10000 \
+  --save_steps=5000 \
   --num_core_per_host=1 \
   --seq_len=128 \
   --reuse_len=64 \
@@ -51,7 +51,9 @@ sudo docker run --name=pretrain_xlnet_mimic \
   --mask_alpha=6 \
   --mask_beta=1 \
   --num_predict=85 \
-  --uncased=False
+  --uncased=False \
+  --bi_data=True \
+  --use_tpu=False 
 ```
 
 ## Run classification on imdb data
@@ -158,7 +160,7 @@ python tool/eval_token.py \
 < ${OUTPUTDIR}/data/predict.${PREDICTTAG}.txt \
 > ${OUTPUTDIR}/data/predict.${PREDICTTAG}.token
 ```
-Results:
+Results(with no early stop):
 ```
 processed 49830 tokens with 5635 phrases; found: 5723 phrases; correct: 5236.
 accuracy:  93.84%; (non-O)
